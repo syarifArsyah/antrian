@@ -9,7 +9,6 @@ class expedisi extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'nama_expedisi', 'nama'
+    protected $fillable = [ 'nama'
     ];
 }

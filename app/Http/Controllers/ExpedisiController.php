@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\expedisi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ExpedisiController extends Controller
 {
@@ -36,7 +37,24 @@ class ExpedisiController extends Controller
      */
     public function store(Request $request)
     {
-        return "Oke";
+        // dd($request);
+        $validate= Validator::make($request->all(),[
+            'nama' => 'required',
+        ]);
+
+        if($validate->fails()){
+            return response()->json([
+                'error' => $validate->errors()->all()
+            ]);
+        }
+
+        expedisi::create([
+            'nama'  => $request->nama
+        ]);
+
+        return response()->json([
+            'message'   => 'Data berhasil di tambahkan'
+        ]);
     }
 
     /**
