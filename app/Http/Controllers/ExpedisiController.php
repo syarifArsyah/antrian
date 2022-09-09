@@ -97,8 +97,12 @@ class ExpedisiController extends Controller
      * @param  \App\Models\expedisi  $expedisi
      * @return \Illuminate\Http\Response
      */
-    public function destroy(expedisi $expedisi)
+    public function destroy($id)
     {
-        //
+        expedisi::where('id',$id)->delete();
+        return response()->json([
+            'seccess'   => true,
+            'message'   => 'Data berhasil di hapus'
+        ]);
     }
 }

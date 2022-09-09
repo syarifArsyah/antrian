@@ -23,13 +23,17 @@
                 </thead>
                 <tbody>
                     @foreach ($expedisis as $item)
-                        <tr>
+                        <tr id="index_{{$item->id}}">
                             <td>{{$loop->iteration}}</td>
                             <td>{{$item->nama}}</td>
                             <td>{{$item->created_at}}</td>
                             <td>
                                 <button class="btn btn-warning btn-sm py-1 px-3"><i class="fa fa-pencil"></i> Edit</button>
-                                <button class="btn btn-danger btn-sm py-1 px-3"><i class="fa fa-trash"></i> Delete</button>
+                                <form action="{{route('expedisi.destroy',$item->id)}}" id="form_delete" method="POST" style="display:inline">
+                                    @method('delete')
+                                    @csrf
+                                    <a class="btn btn-danger btn-sm py-1 px-3" id="deleteExpedisi" data-id="{{$item->id}}"><i class="fa fa-trash"></i> Delete</a>
+                                </form>
                             </td>
                         </tr>
                     @endforeach
@@ -56,12 +60,9 @@
                             <div class="col-xs-12 col-md-12">
                                 <div class="form-group">
                                     <strong>Nama Expedisi : </strong>
-                                    <input type="text" name="nama" id="namaexpedisi" placeholder="Nama Expedisi" class="form-control @error('namaexpedisi') is-invalid @enderror" autofocus>
-                                    @error('namaexpedisi')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{message}}</strong>
-                                        </span>
-                                    @enderror
+                                    <input type="text" name="nama" id="namaexpedisi" placeholder="Nama Expedisi" class="form-control" autofocus>
+                                    <div class="invalid-feedback messageinvalid">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -125,10 +126,65 @@
                              }, 1500);
                              modalClose();
                         }else{
+                            $('#namaexpedisi').addClass("is-invalid");
+                            $('.messageinvalid').html(data.error)
                             console.log(data.error)
                         }
                     }
                 })
+            });
+
+            $('body').on('click','#deleteExpedisi',function(e){
+                // e.preventDefault();
+
+                var id = $(this).data('id');
+                let token   = $("meta[name='csrf-token']").attr("content");
+                console.log(id);
+                
+                Swal.fire({
+                    title   : "Anda kamu yakin?",
+                    text    : 'akan menghapus data ini!',
+                    confirmButtonText   : "Ya, Hapus",
+                    showCancelButton    : true,
+                    cancelButtonText: "Tidak",
+                    icon: 'warning',
+                })
+                Swal.fire({
+                title: 'Apakah Kamu Yakin?',
+                text: "ingin menghapus data ini!",
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'TIDAK',
+                confirmButtonText: 'YA, HAPUS!'
+            }).then((result)=>{
+                if (result.isConfirmed) {
+                    // console.log("test")
+                    $.ajax({
+                        url     : `/expedisi/${id}`,
+                        type    : 'DELETE',
+                        cache   : false,
+                        data    : {
+                            "_token"    : token
+                        },
+                        success : function (response) { 
+                            //show success message
+                        Swal.fire({
+                            type: 'success',
+                            icon: 'success',
+                            title: `${response.message}`,
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                            //remove post on table
+                            $(`#index_${id}`).remove();
+                            setInterval(() => {
+                                 location.reload();
+                             }, 2000);
+                        }
+                    })
+                }
+            })
+
             });
         });
     </script>
